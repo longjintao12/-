@@ -34,9 +34,7 @@ class DetailActivity : AppCompatActivity() {
     private var vodName = ""
     private var vodPic = ""
     private var currentLine = 0
-    private val episodeAdapter = EpisodeAdapter { ep ->
-        playEpisode(currentLine, ep)
-    }
+    private val episodeAdapter = EpisodeAdapter { ep -> playEpisode(currentLine, ep) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,10 +99,8 @@ class DetailActivity : AppCompatActivity() {
                     if (d.vodPic.isNotBlank()) b.poster.load(d.vodPic)
 
                     b.tabPlayFrom.removeAllTabs()
-                    if (d.vodPlayFrom.isNotEmpty()) {
-                        for (line in d.vodPlayFrom) {
-                            b.tabPlayFrom.addTab(b.tabPlayFrom.newTab().setText(line))
-                        }
+                    for (line in d.vodPlayFrom) {
+                        b.tabPlayFrom.addTab(b.tabPlayFrom.newTab().setText(line))
                     }
                     loadEpisodes()
                 }
@@ -126,14 +122,14 @@ class DetailActivity : AppCompatActivity() {
     private fun playEpisode(line: Int, ep: PlayUrl) {
         val db = AppDbHelper.get(this)
         db.addHistory(vodId, sourceId, vodName, vodPic,
-            detail?.vodPlayFrom?.getOrElse(line) { "" } ?: "", line, 0)
+            detail?.vodPlayFrom?.let { if (it.size > line) it[line] else "" } ?: "", line, 0)
 
         startActivity(Intent(this, PlayerActivity::class.java).apply {
             putExtra("sourceId", sourceId)
             putExtra("vodId", vodId)
             putExtra("name", vodName)
             putExtra("pic", vodPic)
-            putExtra("playFrom", detail?.vodPlayFrom?.getOrElse(line) ?: "")
+            putExtra("playFrom", detail?.vodPlayFrom?.let { if (it.size > line) it[line] else "" } ?: "")
             putExtra("playIndex", episodeAdapter.getData().indexOf(ep))
             putExtra("playUrl", ep.url)
             putExtra("epName", ep.name)
