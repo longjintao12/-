@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NovaBox星盒</string>
+    <string name="tab_home">首页</string>
+    <string name="tab_favorite">收藏</string>
+    <string name="tab_mine">我的</string>
+    <string name="search_hint">搜索影片、剧集…</string>
+    <string name="no_source">暂无数据源，请先在「我的→源管理」中添加</string>
+    <string name="no_data">暂无数据</string>
+    <string name="no_favorite">还没有收藏</string>
+    <string name="no_history">还没有播放记录</string>
+    <string name="confirm">确认</string>
+    <string name="cancel">取消</string>
+    <string name="delete">删除</string>
+    <string name="save">保存</string>
+    <string name="play">播放</string>
+    <string name="source_manager">源管理</string>
+    <string name="cookie_manager">网盘Cookie</string>
+    <string name="play_settings">播放设置</string>
+    <string name="about">关于</string>
+    <string name="clear_data">清除全部数据</string>
+</resources>
