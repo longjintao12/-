@@ -19,7 +19,7 @@ class SourceManagerActivity : AppCompatActivity() {
 
     private lateinit var b: ActivitySourceManagerBinding
     private lateinit var adapter: SourceAdapter
-    private var sources: MutableList<Source> = mutableListOf()
+    private var sources = mutableListOf<Source>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,8 +31,12 @@ class SourceManagerActivity : AppCompatActivity() {
         sources = SourceRepo.load()
         adapter = SourceAdapter(sources,
             onToggle = { s, enabled ->
-                s.enabled = enabled
-                SourceRepo.save(sources)
+                val idx = sources.indexOf(s)
+                if (idx >= 0) {
+                    sources[idx] = s.copy(enabled = enabled)
+                    adapter.notifyItemChanged(idx)
+                    SourceRepo.save(sources)
+                }
             },
             onDelete = { s ->
                 sources.remove(s)
