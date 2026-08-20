@@ -2,12 +2,14 @@ package com.novabox.app.ui.detail
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.google.android.material.tabs.TabLayout
@@ -116,7 +118,7 @@ class DetailActivity : AppCompatActivity() {
         detail?.let { d ->
             if (d.vodPlayUrl.size > currentLine) {
                 val eps = ApiParser.parseEpisodes(d.vodPlayUrl[currentLine])
-                episodeAdapter.submitList(eps)
+                episodeAdapter.setData(eps)
             }
         }
     }
@@ -132,7 +134,7 @@ class DetailActivity : AppCompatActivity() {
             putExtra("name", vodName)
             putExtra("pic", vodPic)
             putExtra("playFrom", detail?.vodPlayFrom?.getOrElse(line) ?: "")
-            putExtra("playIndex", episodeAdapter.currentList.indexOf(ep))
+            putExtra("playIndex", episodeAdapter.getData().indexOf(ep))
             putExtra("playUrl", ep.url)
             putExtra("epName", ep.name)
         })
@@ -140,25 +142,33 @@ class DetailActivity : AppCompatActivity() {
 
     class EpisodeAdapter(
         private val onClick: (PlayUrl) -> Unit
-    ) : ListAdapter<PlayUrl, EpisodeAdapter.VH>(object : DiffUtil.ItemCallback<PlayUrl>() {
-        override fun areItemsTheSame(a: PlayUrl, b: PlayUrl): Boolean = a.name == b.name
-        override fun areContentsTheSame(a: PlayUrl, b: PlayUrl): Boolean = a == b
-    }) {
+    ) : RecyclerView.Adapter<EpisodeAdapter.VH>() {
 
-        override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): VH {
-            val v = android.view.LayoutInflater.from(parent.context)
+        private var data = listOf<PlayUrl>()
+
+        fun setData(list: List<PlayUrl>) {
+            data = list
+            notifyDataSetChanged()
+        }
+
+        fun getData() = data
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+            val v = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_episode, parent, false)
             return VH(v)
         }
 
         override fun onBindViewHolder(h: VH, pos: Int) {
-            val ep = getItem(pos)
+            val ep = data[pos]
             h.name.text = ep.name
             h.name.setOnClickListener { onClick(ep) }
         }
 
-        class VH(v: android.view.View) : RecyclerView.ViewHolder(v) {
-            val name: android.widget.TextView = v.findViewById(R.id.name)
+        override fun getItemCount() = data.size
+
+        class VH(v: View) : RecyclerView.ViewHolder(v) {
+            val name: TextView = v.findViewById(R.id.name)
         }
     }
 }
