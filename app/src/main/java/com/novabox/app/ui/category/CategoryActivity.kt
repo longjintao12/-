@@ -26,7 +26,8 @@ class CategoryActivity : AppCompatActivity() {
         })
     }
 
-    private val source = Source("", "", "")
+    private var sourceId = ""
+    private var sourceName = ""
     private var catId = ""
     private var page = 1
     private var isLoading = false
@@ -39,17 +40,11 @@ class CategoryActivity : AppCompatActivity() {
 
         b.toolbar.setNavigationOnClickListener { finish() }
 
-        val sourceId = intent.getStringExtra("sourceId") ?: ""
-        val sourceName = intent.getStringExtra("sourceName") ?: ""
+        sourceId = intent.getStringExtra("sourceId") ?: ""
+        sourceName = intent.getStringExtra("sourceName") ?: ""
         catId = intent.getStringExtra("catId") ?: ""
         val catName = intent.getStringExtra("catName") ?: ""
         b.toolbar.title = catName
-
-        (source as java.util.HashMap).putAll(mapOf("id" to sourceId, "name" to sourceName, "api" to "", "enabled" to true, "order" to 0))
-        // hack: 直接构造 Source 对象
-        val s = com.novabox.app.data.model.Source(
-            id = sourceId, name = sourceName, api = "", key = "", enabled = true, order = 0
-        )
 
         b.recycler.layoutManager = GridLayoutManager(this, 3)
         b.recycler.adapter = adapter
@@ -57,7 +52,7 @@ class CategoryActivity : AppCompatActivity() {
             page = 1
             hasMore = true
             adapter.submitList(emptyList())
-            loadData(s)
+            loadData()
         }
 
         b.recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -66,21 +61,22 @@ class CategoryActivity : AppCompatActivity() {
                 if (!isLoading && hasMore) {
                     val lm = recyclerView.layoutManager as? GridLayoutManager ?: return
                     if (lm.findLastVisibleItemPosition() >= adapter.itemCount - 3) {
-                        loadData(s)
+                        loadData()
                     }
                 }
             }
         })
 
-        loadData(s)
+        loadData()
     }
 
-    private fun loadData(s: com.novabox.app.data.model.Source) {
+    private fun loadData() {
         if (isLoading || !hasMore) return
         isLoading = true
+        val src = Source(sourceId, sourceName, "", "", true, 0)
         lifecycleScope.launch {
             try {
-                val list = VodRepo.fetchCategoryList(s, catId, page)
+                val list = VodRepo.fetchCategoryList(src, catId, page)
                 if (list.isEmpty()) {
                     hasMore = false
                 } else {
