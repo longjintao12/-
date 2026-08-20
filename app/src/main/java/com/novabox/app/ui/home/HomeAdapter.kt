@@ -36,13 +36,15 @@ class HomeAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            0 -> {
-                val v = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_banner, parent, false)
-                BannerVH(v)
-            }
-            1 -> CatsVH(LayoutInflater.from(parent.context).inflate(R.layout.item_category, parent, false) as TextView)
-            2 -> RowVH(LayoutInflater.from(parent.context).inflate(R.layout.item_vod_h, parent, false))
+            0 -> BannerVH(
+                LayoutInflater.from(parent.context).inflate(R.layout.item_banner, parent, false) as ViewPager2
+            )
+            1 -> CatsVH(
+                LayoutInflater.from(parent.context).inflate(R.layout.item_category, parent, false) as TextView
+            )
+            2 -> RowVH(
+                LayoutInflater.from(parent.context).inflate(R.layout.item_vod_h, parent, false)
+            )
             else -> throw IllegalArgumentException()
         }
     }
@@ -51,7 +53,7 @@ class HomeAdapter(
         when (val item = items[position]) {
             is HomeItem.Banner -> bindBanner(holder as BannerVH, item)
             is HomeItem.Cats -> bindCats(holder as CatsVH, item)
-            is HomeItem.Row -> (holder as RowVH).bind(item)
+            is HomeItem.Row -> bindRow(holder as RowVH, item)
         }
     }
 
@@ -64,25 +66,26 @@ class HomeAdapter(
 
     private fun bindCats(holder: CatsVH, item: HomeItem.Cats) {
         holder.chip.text = "分类"
+        holder.chip.setOnClickListener { /* 分类点击由横向列表处理 */ }
     }
 
-    // 内嵌 RecyclerView 或简化处理
-    inner class BannerVH(v: View) : RecyclerView.ViewHolder(v) {
-        val pager: ViewPager2 = v as ViewPager2
+    private fun bindRow(holder: RowVH, item: HomeItem.Row) {
+        holder.title.text = item.title
+        val vodAdapter = com.novabox.app.ui.common.VodAdapter(onVodClick)
+        holder.recycler.layoutManager = LinearLayoutManager(
+            holder.itemView.context, LinearLayoutManager.HORIZONTAL, false
+        )
+        holder.recycler.adapter = vodAdapter
+        vodAdapter.submitList(item.items)
     }
 
-    inner class CatsVH(val chip: TextView) : RecyclerView.ViewHolder(chip) {
-        init {
-            chip.setOnClickListener {
-                // 点击分类标签不做特别处理
-            }
-        }
-    }
+    inner class BannerVH(val pager: ViewPager2) : RecyclerView.ViewHolder(pager)
+
+    inner class CatsVH(val chip: TextView) : RecyclerView.ViewHolder(chip)
 
     inner class RowVH(v: View) : RecyclerView.ViewHolder(v) {
-        fun bind(item: HomeItem.Row) {
-            // 简化为只显示第一个 item
-        }
+        val title: TextView = v.findViewById(R.id.name)
+        val recycler: RecyclerView = v.findViewById(R.id.row_recycler)
     }
 
     class BannerPagerAdapter(
