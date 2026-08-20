@@ -1,8 +1,6 @@
 package com.novabox.app.ui.player
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
@@ -13,12 +11,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.source.DefaultHttpDataSource
 import androidx.recyclerview.widget.GridLayoutManager
 import com.novabox.app.R
 import com.novabox.app.data.db.AppDbHelper
 import com.novabox.app.data.model.PlayUrl
-import com.novabox.app.data.model.VodDetail
 import com.novabox.app.data.repo.SourceRepo
 import com.novabox.app.data.repo.VodRepo
 import com.novabox.app.databinding.ActivityPlayerBinding
@@ -37,8 +33,7 @@ class PlayerActivity : AppCompatActivity() {
     private var playIndex = 0
     private var episodes = listOf<PlayUrl>()
     private var currentLine = 0
-    private var detail: VodDetail? = null
-    private val handler = Handler(Looper.getMainLooper())
+    private var detail: com.novabox.app.data.model.VodDetail? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,16 +58,6 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun setupPlayer() {
-        val factory = DefaultHttpDataSource.Factory().apply {
-            setUserAgent(Prefs.userAgent)
-            if (Prefs.referer.isNotBlank()) setDefaultRequestProperties(
-                mapOf("Referer" to Prefs.referer)
-            )
-            if (Prefs.cookie.isNotBlank()) {
-                setDefaultRequestProperties(mapOf("Cookie" to Prefs.cookie))
-            }
-        }
-
         player = ExoPlayer.Builder(this)
             .build()
             .also { p ->
@@ -89,12 +74,10 @@ class PlayerActivity : AppCompatActivity() {
                 })
             }
 
-        // 手势
         b.playerView.setOnTouchListener { _, event -> handleGesture(event) }
     }
 
     private fun handleGesture(event: MotionEvent): Boolean {
-        // 简化的手势：双击切换控制面板
         if (event.action == MotionEvent.ACTION_DOWN) {
             b.panel.visibility = if (b.panel.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
@@ -132,6 +115,7 @@ class PlayerActivity : AppCompatActivity() {
             saveHistory()
         }
         (b.episodes.adapter as? androidx.recyclerview.widget.ListAdapter<*, *>)?.let {
+            @Suppress("UNCHECKED_CAST")
             (it as androidx.recyclerview.widget.ListAdapter<PlayUrl, *>).submitList(episodes)
         }
     }
