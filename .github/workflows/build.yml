@@ -30,9 +30,9 @@ jobs:
       - name: Build Debug APK
         run: |
           ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
-          echo '## Build Log' >> $GITHUB_STEP_SUMMARY
+          echo '## Build Errors' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          tail -100 build.log >> $GITHUB_STEP_SUMMARY
+          grep -E '^(e:|w:)' build.log >> $GITHUB_STEP_SUMMARY || echo '(no errors found)' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Debug APK
