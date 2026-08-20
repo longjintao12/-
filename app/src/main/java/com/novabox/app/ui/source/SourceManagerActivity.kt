@@ -19,7 +19,7 @@ class SourceManagerActivity : AppCompatActivity() {
 
     private lateinit var b: ActivitySourceManagerBinding
     private lateinit var adapter: SourceAdapter
-    private var sources = mutableListOf<Source>()
+    private var sources: MutableList<Source> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
