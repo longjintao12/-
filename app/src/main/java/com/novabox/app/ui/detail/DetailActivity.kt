@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.google.android.material.tabs.TabLayout
 import com.novabox.app.R
@@ -139,7 +140,10 @@ class DetailActivity : AppCompatActivity() {
 
     class EpisodeAdapter(
         private val onClick: (PlayUrl) -> Unit
-    ) : ListAdapter<PlayUrl, EpisodeAdapter.VH>(DIFF) {
+    ) : ListAdapter<PlayUrl, EpisodeAdapter.VH>(object : DiffUtil.ItemCallback<PlayUrl>() {
+        override fun areItemsTheSame(a: PlayUrl, b: PlayUrl): Boolean = a.name == b.name
+        override fun areContentsTheSame(a: PlayUrl, b: PlayUrl): Boolean = a == b
+    }) {
 
         override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): VH {
             val v = android.view.LayoutInflater.from(parent.context)
@@ -153,15 +157,8 @@ class DetailActivity : AppCompatActivity() {
             h.name.setOnClickListener { onClick(ep) }
         }
 
-        class VH(v: android.view.View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(v) {
+        class VH(v: android.view.View) : RecyclerView.ViewHolder(v) {
             val name: android.widget.TextView = v.findViewById(R.id.name)
-        }
-
-        companion object {
-            val DIFF = object : DiffUtil.ItemCallback<PlayUrl>() {
-                override fun areItemsTheSame(a: PlayUrl, b: PlayUrl) = a.name == b.name
-                override fun areContentsTheSame(a: PlayUrl, b: PlayUrl) = a == b
-            }
         }
     }
 }
