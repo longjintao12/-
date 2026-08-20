@@ -51,12 +51,8 @@ class SourceManagerActivity : AppCompatActivity() {
     }
 
     private fun showAddDialog() {
-        val edit = android.widget.EditText(this).apply {
-            hint = "名称"
-        }
-        val editApi = android.widget.EditText(this).apply {
-            hint = "API 地址"
-        }
+        val edit = android.widget.EditText(this).apply { hint = "名称" }
+        val editApi = android.widget.EditText(this).apply { hint = "API 地址" }
         val layout = android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.VERTICAL
             addView(edit)
