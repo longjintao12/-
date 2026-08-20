@@ -3,10 +3,10 @@ package com.novabox.app.ui.search
 import android.content.Intent
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import coil.load
 import com.novabox.app.data.model.VodSummary
 import com.novabox.app.data.repo.SourceRepo
 import com.novabox.app.data.repo.VodRepo
@@ -17,14 +17,31 @@ import kotlinx.coroutines.launch
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var b: ActivitySearchBinding
-    private val results = mutableListOf<VodSummary>()
-    private val adapter = SearchAdapter { v ->
-        startActivity(Intent(this, DetailActivity::class.java).apply {
-            putExtra("sourceId", v.sourceId)
-            putExtra("vodId", v.vodId)
-            putExtra("name", v.vodName)
-            putExtra("pic", v.vodPic)
-        })
+
+    private val adapter = object : androidx.recyclerview.widget.ListAdapter<VodSummary, SearchVH>(
+        com.novabox.app.ui.common.VodAdapter.DIFF
+    ) {
+        override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): SearchVH {
+            val v = android.view.LayoutInflater.from(parent.context)
+                .inflate(com.novabox.app.R.layout.item_search_result, parent, false)
+            return SearchVH(v)
+        }
+
+        override fun onBindViewHolder(h: SearchVH, pos: Int) {
+            val item = getItem(pos)
+            h.name.text = item.vodName
+            h.remarks.text = item.vodRemarks
+            h.source.text = item.sourceName
+            if (item.vodPic.isNotBlank()) h.image.load(item.vodPic)
+            h.itemView.setOnClickListener {
+                startActivity(Intent(this@SearchActivity, DetailActivity::class.java).apply {
+                    putExtra("sourceId", item.sourceId)
+                    putExtra("vodId", item.vodId)
+                    putExtra("name", item.vodName)
+                    putExtra("pic", item.vodPic)
+                })
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,8 +75,6 @@ class SearchActivity : AppCompatActivity() {
                     all.addAll(list)
                 } catch (_: Exception) {}
             }
-            results.clear()
-            results.addAll(all)
             adapter.submitList(all.toList())
             b.progress.visibility = android.view.View.GONE
             if (all.isEmpty()) {
@@ -69,33 +84,9 @@ class SearchActivity : AppCompatActivity() {
     }
 }
 
-class SearchAdapter(
-    private val onClick: (VodSummary) -> Unit
-) : androidx.recyclerview.widget.ListAdapter<VodSummary, SearchAdapter.VH>(com.novabox.app.ui.common.VodAdapter.DIFF) {
-
-    override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): VH {
-        val v = android.view.LayoutInflater.from(parent.context)
-            .inflate(com.novabox.app.R.layout.item_search_result, parent, false)
-        return VH(v)
-    }
-
-    override fun onBindViewHolder(h: VH, pos: Int) {
-        val item = getItem(pos)
-        h.name.text = item.vodName
-        h.remarks.text = item.vodRemarks
-        h.source.text = item.sourceName
-        if (item.vodPic.isNotBlank()) h.image.load(item.vodPic)
-        h.itemView.setOnClickListener { onClick(item) }
-    }
-
-    class VH(v: android.view.View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(v) {
-        val image: android.widget.ImageView = v.findViewById(com.novabox.app.R.id.image)
-        val name: android.widget.TextView = v.findViewById(com.novabox.app.R.id.name)
-        val remarks: android.widget.TextView = v.findViewById(com.novabox.app.R.id.remarks)
-        val source: android.widget.TextView = v.findViewById(com.novabox.app.R.id.source)
-    }
-
-    private fun android.widget.ImageView.load(url: String) {
-        coil.load(url)
-    }
+class SearchVH(v: android.view.View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(v) {
+    val image: android.widget.ImageView = v.findViewById(com.novabox.app.R.id.image)
+    val name: android.widget.TextView = v.findViewById(com.novabox.app.R.id.name)
+    val remarks: android.widget.TextView = v.findViewById(com.novabox.app.R.id.remarks)
+    val source: android.widget.TextView = v.findViewById(com.novabox.app.R.id.source)
 }
