@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="ua"
+        android:title="User-Agent"
+        android:summary="请求时使用的 UA，修改后重启 APP 生效"
+        android:defaultValue="Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36" />
+
+    <EditTextPreference
+        android:key="referer"
+        android:title="Referer"
+        android:summary="部分网盘直链需要，留空则不发送"
+        android:defaultValue="" />
+
+    <SwitchPreferenceCompat
+        android:key="auto_play"
+        android:title="自动连播"
+        android:summary="当前播放结束后自动播下一集"
+        android:defaultValue="true" />
+
+    <SwitchPreferenceCompat
+        android:key="banner"
+        android:title="首页轮播"
+        android:summary="显示推荐轮播"
+        android:defaultValue="true" />
+
+    <Preference
+        android:key="clear_data"
+        android:title="清除全部数据"
+        android:summary="清除所有收藏、历史、设置" />
+
+    <Preference
+        android:key="about"
+        android:title="关于 NovaBox"
+        android:summary="版本 1.0.0 · 开源 MIT" />
+</PreferenceScreen>
