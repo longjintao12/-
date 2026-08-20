@@ -1,12 +1,13 @@
 package com.novabox.app.ui.detail
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import coil.load
 import com.google.android.material.tabs.TabLayout
 import com.novabox.app.R
@@ -138,7 +139,7 @@ class DetailActivity : AppCompatActivity() {
 
     class EpisodeAdapter(
         private val onClick: (PlayUrl) -> Unit
-    ) : androidx.recyclerview.widget.ListAdapter<PlayUrl, EpisodeAdapter.VH>(diff) {
+    ) : ListAdapter<PlayUrl, EpisodeAdapter.VH>(DIFF) {
 
         override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): VH {
             val v = android.view.LayoutInflater.from(parent.context)
@@ -157,7 +158,7 @@ class DetailActivity : AppCompatActivity() {
         }
 
         companion object {
-            val diff = object : androidx.recyclerview.widget.DiffUtil.ItemCallback<PlayUrl>() {
+            val DIFF = object : DiffUtil.ItemCallback<PlayUrl>() {
                 override fun areItemsTheSame(a: PlayUrl, b: PlayUrl) = a.name == b.name
                 override fun areContentsTheSame(a: PlayUrl, b: PlayUrl) = a == b
             }
