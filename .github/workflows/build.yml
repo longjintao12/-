@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -35,10 +35,18 @@ jobs:
           grep -E '^(e:|w:)' build.log >> $GITHUB_STEP_SUMMARY || echo '(no errors found)' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
-      - name: Upload Debug APK
-        if: success()
-        uses: actions/upload-artifact@v4
+      - name: Rename APK
+        run: |
+          mkdir -p release
+          cp app/build/outputs/apk/debug/*.apk release/NovaBox-debug.apk
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: novabox-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
+          files: release/NovaBox-debug.apk
+          tag_name: nightly
+          name: "NovaBox 星盒 - 最新构建"
+          body: "自动构建的 Debug APK，可直接安装。\n\n构建时间: ${{ github.event.head_commit.timestamp }}"
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
